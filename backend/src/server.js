@@ -1,7 +1,12 @@
 // start server
-// load environment variables from src/.env (file lives in src/)
-require('dotenv').config({ path: __dirname + '/src/.env' });
-const app = require('./src/app');
+// load environment variables from .env
+require('dotenv').config({ path: __dirname + '/.env' });
+const app = require('./app');
+
+
+
+const connectDB = require('./db/db');
+connectDB();
 
 
 const PORT = process.env.PORT || 3000;
