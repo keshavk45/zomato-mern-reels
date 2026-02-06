@@ -114,3 +114,49 @@ async function registerFoodPartner(req,res){
         }
     })
 }
+
+async function loginFoodPartner(req,res){
+    const { email , password} = req.body;
+    const foodPartner = await foodPartnermodel.findOne({ 
+        email
+    })
+    if(!foodPartner) {
+        return res.status(400).json({
+            message : "invalid email or password"
+        })
+    }
+    const isPasswordValid = await bcrypt.compare(password , foodPartner.password);
+    if(!isPasswordValid) {
+        return res.status(400).json({
+            message : "Invalid credentials"
+        })
+    }
+    const token = jwt.sign({
+        id : foodPartner._id,
+    } , process.env.JWT_SECRET)
+    res.cookie("token" , token )
+    res.status(200).json({
+        message : "Food Partner logged in successfully",
+        foodPartner:{
+            _id : foodPartner._id,
+            name : foodPartner.name,
+            email : foodPartner.email,
+        }
+    })
+}
+
+function logoutFoodPartner(req,res){
+    res.clearCookie("token");
+    res.status(200).json({
+        message : "Food Partner logged out successfully"
+    })
+}
+
+module.exports = {
+    registerUser,
+    loginUser,
+    logoutUser,
+    registerFoodPartner,
+    loginFoodPartner,
+    logoutFoodPartner
+}
