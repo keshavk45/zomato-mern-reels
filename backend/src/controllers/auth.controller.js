@@ -84,3 +84,33 @@ function logoutUser(req,res){
         message : "User logged out successfully"
     })
 }
+
+async function registerFoodPartner(req,res){
+    const { name , email , password} = req.body;
+    const isAccountAlreadyExists = await foodPartnermodel.findOne({
+        email
+    })
+
+    if(isAccountAlreadyExists) {
+        return res.status(400).json({
+            message : "Food Partner Account already exists"
+        })
+    }
+    const hashedPassword = await bcrypt.hash(password , 10);
+    const foodPartner = await foodPartnermodel.create({
+        name , email,password : hashedPassword
+    })  
+
+    const token = jwt.sign({
+        id : foodPartner._id,
+    } , process.env.JWT_SECRET)
+    res.cookie("token" , token )
+    res.status(201).json({
+        message : "Food Partner registered successfully",
+        foodPartner:{
+            _id : foodPartner._id,
+            name : foodPartner.name,
+            email : foodPartner.email,
+        }
+    })
+}
