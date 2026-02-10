@@ -28,3 +28,29 @@ async function createFood(req, res) {
         if (!fileBuffer) {
             return res.status(400).json({ message: 'Uploaded file is not available for upload.' });
         }
+        
+        if (!fileBuffer) {
+            return res.status(400).json({ message: 'Uploaded file is not available for upload.' });
+        }
+
+        const fileUploadResult = await storageService.uploadFile(fileBuffer, uuid());
+
+        const partnerId = (req.foodPartner && req.foodPartner._id) || (req.user && req.user._id) || null;
+
+        const foodItem = await foodModel.create({
+            name: req.body.name,
+            description: req.body.description,
+            // prefer the URL returned by storage service; fallback to multer filename/path if needed
+            video: fileUploadResult?.url || req.file.filename || req.file.path,
+            foodPartner: partnerId
+        });
+
+        res.status(201).json({
+            message: "food created successfully",
+            food: foodItem
+        });
+    } catch (err) {
+        console.error('createFood error:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
