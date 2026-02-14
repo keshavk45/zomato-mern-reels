@@ -102,3 +102,44 @@ async function likeFood(req, res) {
     })
 
 }
+
+async function saveFood(req, res) {
+
+    const { foodId } = req.body;
+    const user = req.user;
+
+    const isAlreadySaved = await saveModel.findOne({
+        user: user._id,
+        food: foodId
+    })
+
+    if (isAlreadySaved) {
+        await saveModel.deleteOne({
+            user: user._id,
+            food: foodId
+        })
+
+        await foodModel.findByIdAndUpdate(foodId, {
+            $inc: { savesCount: -1 }
+        })
+
+        return res.status(200).json({
+            message: "Food unsaved successfully"
+        })
+    }
+
+    const save = await saveModel.create({
+        user: user._id,
+        food: foodId
+    })
+
+    await foodModel.findByIdAndUpdate(foodId, {
+        $inc: { savesCount: 1 }
+    })
+
+    res.status(201).json({
+        message: "Food saved successfully",
+        save
+    })
+
+}
