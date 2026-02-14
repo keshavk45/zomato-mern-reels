@@ -159,3 +159,11 @@ async function getSaveFood(req, res) {
     });
 
 }
+
+module.exports = {
+    createFood,
+    getFoodItems,
+    likeFood,
+    saveFood,
+    getSaveFood
+}
